@@ -32,6 +32,11 @@ const swaggerDocument = require('./swagger-output.json')
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the E-Center Backend API');
+});
+
+
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`)
