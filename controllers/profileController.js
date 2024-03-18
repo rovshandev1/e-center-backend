@@ -37,13 +37,13 @@ const updateProfile = async (req, res) => {
 		if (user.role === 'student') {
 			profile = await Student.findOneAndUpdate(
 				{ user: userId },
-				{ dateOfBirth },
+				{ dateOfBirth, profileImage: req.file ? req.file.path : profile.profileImage },
 				{ new: true, runValidators: true }
 			)
 		} else {
 			profile = await Teacher.findOneAndUpdate(
 				{ user: userId },
-				{ dateOfBirth, position },
+				{ dateOfBirth, position, profileImage: req.file ? req.file.path : profile.profileImage },
 				{ new: true, runValidators: true }
 			)
 		}
