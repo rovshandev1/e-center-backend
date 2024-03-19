@@ -10,7 +10,7 @@ const studentSchema = new mongoose.Schema({
 		type: Date,
 		required: true,
 	},
-	profileImage: { type: String },
+	profileImage: { type: Object },
 	groups: [
 		{
 			type: mongoose.Schema.Types.ObjectId,

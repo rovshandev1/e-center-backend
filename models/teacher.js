@@ -14,7 +14,7 @@ const teacherSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	profileImage: { type: String },
+	profileImage: { type: Object },
 	groups: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
