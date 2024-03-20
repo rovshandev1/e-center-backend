@@ -6,7 +6,7 @@ const createGroup = async (req, res) => {
   try {
     const { name, description } = req.body;
     const teacherId = req.user.userId;
-    const teacher = await Teacher.findById(teacherId);
+    const teacher = await Teacher.findOne({ user: req.user.userId });
     if (!teacher) {
       return res.status(404).json({ message: 'Teacher not found' });
     }
