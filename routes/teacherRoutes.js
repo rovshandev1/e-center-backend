@@ -5,6 +5,7 @@ const {
 	getTeacherProfile,
 	getTeacherGroups,
 	markAttendance,
+	updateAttendance,
 } = require('../controllers/teacherController')
 
 // Get teacher profile
@@ -15,5 +16,8 @@ router.get('/teachers/:id/groups', auth, getTeacherGroups)
 
 // Mark attendance
 router.post('/attendance', auth, markAttendance)
+
+// Mark attendance update
+router.put('/attendance', auth, updateAttendance)
 
 module.exports = router

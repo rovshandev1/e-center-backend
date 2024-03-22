@@ -1,19 +1,21 @@
-const Student = require('../models/student')
+const User = require('../models/user')
 const Attendance = require('../models/attendance')
 const Homework = require('../models/homework')
 
 const getStudentProfile = async (req, res) => {
 	try {
-		const studentId = req.params.id
-		const student = await Student.findById(studentId)
-			.populate('user', 'name email')
-			.populate('groups', 'name')
+		const userId = req.params.id
+		// Talabaning ma'lumotlarini bazadan izlash
+		const student = await User.findOne({
+			_id: userId,
+			role: 'student',
+		}).populate('groups', 'name dob profileImage')
 		if (!student) {
 			return res.status(404).json({ message: 'Student not found' })
 		}
 		res.status(200).json(student)
 	} catch (err) {
-		res.status(500).json({ message: 'Something went wrong' })
+		res.status(500).json({ message: 'Something went wrong', err })
 	}
 }
 
@@ -33,8 +35,8 @@ const getStudentAttendance = async (req, res) => {
 const getStudentHomework = async (req, res) => {
 	try {
 		const studentId = req.params.id
-		const student = await Student.findById(studentId).populate('groups')
-		if (!student) {
+		const student = await User.findById(studentId).populate('groups')
+		if (!student || student.role !== 'student') {
 			return res.status(404).json({ message: 'Student not found' })
 		}
 		const homework = await Homework.find({

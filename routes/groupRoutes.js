@@ -27,7 +27,7 @@ router.put('/groups/:id', auth, updateGroup)
 router.delete('/groups/:id', auth, deleteGroup)
 
 // Add a student to a group
-router.put('/groups/:groupId/students/:studentId', auth, addStudentToGroup)
+router.post('/groups/:groupId/students/:studentId', auth, addStudentToGroup)
 
 // Remove a student from a group
 router.delete(

@@ -1,132 +1,159 @@
-const Group = require('../models/group');
-const Student = require('../models/student');
-const Teacher = require('../models/teacher');
+const Group = require('../models/group')
+const User = require('../models/user.js')
 
 const createGroup = async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    const teacherId = req.user.userId;
-    const teacher = await Teacher.findOne({ user: req.user.userId });
-    if (!teacher) {
-      return res.status(404).json({ message: 'Teacher not found' });
-    }
-    const group = new Group({ name, description, teacher: teacherId });
-    await group.save();
-    teacher.groups.push(group._id);
-    await teacher.save();
-    res.status(201).json(group);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+	try {
+		const { name, description } = req.body
+		const userId = req.user.userId
+		// Foydalanuvchi obyektini topish
+		const user = await User.findById(userId)
+		// Foydalanuvchi topilmayotgan yoki roli "teacher" emas bo'lsa, xato qaytarish
+		if (!user || user.role !== 'teacher') {
+			return res.status(404).json({ message: 'Teacher not found' })
+		}
+		// Guruh obyektini yaratish va saqlash
+		const group = new Group({ name, description, teacher: user._id })
+		// Muallifning guruhlari ro'yxatiga qo'shish
+		if (!user.groups) {
+			user.groups = []
+		}
+		user.groups.push(group._id)
+		await user.save()
+		await group.save()
+		res.status(201).json(group)
+	} catch (err) {
+		console.error(err)
+		res
+			.status(500)
+			.json({ message: 'Something went wrong', error: err.message })
+	}
+}
 
 const getAllGroups = async (req, res) => {
-  try {
-    const groups = await Group.find().populate('teacher', 'name').populate('students', 'name');
-    res.status(200).json(groups);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+	try {
+		const groups = await Group.find()
+			.populate('teacher', 'name profileImage position dob')
+			.populate('students', 'name profileImage dob')
+		res.status(200).json(groups)
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong' })
+	}
+}
 
 const getGroupById = async (req, res) => {
-  try {
-    const groupId = req.params.id;
-    const group = await Group.findById(groupId)
-      .populate('teacher', 'name')
-      .populate('students', 'name');
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
-    }
-    res.status(200).json(group);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+	try {
+		const groupId = req.params.id
+		const group = await Group.findById(groupId)
+			.populate('teacher', 'name profileImage dob position')
+			.populate('students', 'name profileImage dob')
+		if (!group) {
+			return res.status(404).json({ message: 'Group not found' })
+		}
+		res.status(200).json(group)
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong' })
+	}
+}
 
 const updateGroup = async (req, res) => {
-  try {
-    const groupId = req.params.id;
-    const { name, description } = req.body;
-    const group = await Group.findByIdAndUpdate(
-      groupId,
-      { name, description },
-      { new: true, runValidators: true }
-    );
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
-    }
-    res.status(200).json(group);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+	try {
+		const groupId = req.params.id
+		const { name, description } = req.body
+		const group = await Group.findByIdAndUpdate(
+			groupId,
+			{ name, description },
+			{ new: true, runValidators: true }
+		)
+		if (!group) {
+			return res.status(404).json({ message: 'Group not found' })
+		}
+		res.status(200).json(group)
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong' })
+	}
+}
 
 const deleteGroup = async (req, res) => {
-  try {
-    const groupId = req.params.id;
-    const group = await Group.findByIdAndDelete(groupId);
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
-    }
-    await Teacher.updateMany(
-      { groups: groupId },
-      { $pull: { groups: groupId } }
-    );
-    await Student.updateMany(
-      { groups: groupId },
-      { $pull: { groups: groupId } }
-    );
-    res.status(200).json({ message: 'Group deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+	try {
+		const groupId = req.params.id
+		const group = await Group.findByIdAndDelete(groupId)
+		if (!group) {
+			return res.status(404).json({ message: 'Group not found' })
+		}
+		await Teacher.updateMany(
+			{ groups: groupId },
+			{ $pull: { groups: groupId } }
+		)
+		await Student.updateMany(
+			{ groups: groupId },
+			{ $pull: { groups: groupId } }
+		)
+		res.status(200).json({ message: 'Group deleted successfully' })
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong' })
+	}
+}
 
 const addStudentToGroup = async (req, res) => {
-  try {
-    const groupId = req.params.groupId;
-    const studentId = req.params.studentId;
-    const group = await Group.findById(groupId);
-    const student = await Student.findById(studentId);
-    if (!group || !student) {
-      return res.status(404).json({ message: 'Group or student not found' });
-    }
-    group.students.push(studentId);
-    student.groups.push(groupId);
-    await group.save();
-    await student.save();
-    res.status(200).json({ message: 'Student added to group successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+	try {
+		const groupId = req.params.groupId
+		const studentId = req.params.studentId
+		const group = await Group.findById(groupId)
+		const student = await User.findById(studentId)
+
+		if (!group || !student || student.role !== 'student') {
+			return res.status(404).json({ message: 'Group or student not found' })
+		}
+
+		// Check if the student is already in the group
+		if (group.students.includes(studentId)) {
+			return res
+				.status(400)
+				.json({ message: 'Student already exists in the group' })
+		}
+
+		// Initialize the groups array if not already initialized
+		if (!student.groups) {
+			student.groups = []
+		}
+
+		group.students.push(studentId)
+		student.groups.push(groupId)
+		await group.save()
+		await student.save()
+
+		res.status(200).json({ message: 'Student added to group successfully' })
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong', err })
+	}
+}
 
 const removeStudentFromGroup = async (req, res) => {
-  try {
-    const groupId = req.params.groupId;
-    const studentId = req.params.studentId;
-    const group = await Group.findById(groupId);
-    const student = await Student.findById(studentId);
-    if (!group || !student) {
-      return res.status(404).json({ message: 'Group or student not found' });
-    }
-    group.students.pull(studentId);
-    student.groups.pull(groupId);
-    await group.save();
-    await student.save();
-    res.status(200).json({ message: 'Student removed from group successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+	try {
+		const groupId = req.params.groupId
+		const studentId = req.params.studentId
+		const group = await Group.findById(groupId)
+		const student = await User.findById(studentId)
+		if (!group || !student) {
+			return res.status(404).json({ message: 'Group or student not found' })
+		}
+		group.students.pull(studentId)
+		student.groups.pull(groupId)
+		await group.save()
+		await student.save()
+
+		res.status(200).json({ message: 'Student removed from group successfully' })
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong', err })
+	}
+}
 
 module.exports = {
-  createGroup,
-  getAllGroups,
-  getGroupById,
-  updateGroup,
-  deleteGroup,
-  addStudentToGroup,
-  removeStudentFromGroup,
-};
+	createGroup,
+	getAllGroups,
+	getGroupById,
+	updateGroup,
+	deleteGroup,
+	addStudentToGroup,
+	removeStudentFromGroup,
+}

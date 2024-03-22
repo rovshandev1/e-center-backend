@@ -10,11 +10,9 @@ const materialSchema = new mongoose.Schema({
 	},
 	file: {
 		type: String,
-		required: true,
 	},
 	fileType: {
 		type: String,
-		required: true,
 	},
 	group: {
 		type: mongoose.Schema.Types.ObjectId,

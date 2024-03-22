@@ -1,3 +1,4 @@
+// user.js
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 
@@ -20,9 +21,21 @@ const userSchema = new mongoose.Schema({
 		enum: ['student', 'teacher'],
 		required: true,
 	},
+	position: {
+		type: String,
+	},
+	dob: {
+		type: String,
+	},
+	groups: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Group',
+		},
+	],
 	profileImage: {
-    type: Object,
-  },
+		type: Object,
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now,

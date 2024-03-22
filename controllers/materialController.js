@@ -4,7 +4,8 @@ const cloudinary = require('../config/cloudinary')
 
 const createMaterial = async (req, res) => {
 	try {
-		const { title, description, groupId } = req.body
+		const { title, description } = req.body
+		const groupId = req.body.group
 		const group = await Group.findById(groupId)
 		if (!group) {
 			return res.status(404).json({ message: 'Group not found' })
@@ -45,7 +46,8 @@ const getMaterialById = async (req, res) => {
 const updateMaterial = async (req, res) => {
 	try {
 		const materialId = req.params.id
-		const { title, description, groupId } = req.body
+		const { title, description } = req.body
+		const groupId = req.body.group
 		const group = await Group.findById(groupId)
 		if (!group) {
 			return res.status(404).json({ message: 'Group not found' })
