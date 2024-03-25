@@ -33,6 +33,12 @@ const userSchema = new mongoose.Schema({
 			ref: 'Group',
 		},
 	],
+	timeBoards: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TimeBoard'
+    }
+  ],
 	profileImage: {
 		type: Object,
 	},

@@ -5,6 +5,7 @@ const {
 	getStudentProfile,
 	getStudentAttendance,
 	getStudentHomework,
+	getAllStudents,
 } = require('../controllers/studentController')
 
 // Get student profile
@@ -15,5 +16,8 @@ router.get('/students/:id/attendance', auth, getStudentAttendance)
 
 // Get student homework
 router.get('/students/:id/homework', auth, getStudentHomework)
+
+// Get all students
+router.get('/students', auth, getAllStudents)
 
 module.exports = router

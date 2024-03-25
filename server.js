@@ -10,6 +10,7 @@ const homeworkRoutes = require('./routes/homeworkRoutes')
 const studentRoutes = require('./routes/studentRoutes')
 const teacherRoutes = require('./routes/teacherRoutes')
 const submission = require('./routes/submissionRoutes')
+const timeBoard = require('./routes/timeBoardRoutes')
 const cors = require('cors')
 const path = require('path')
 
@@ -28,6 +29,7 @@ app.use('/api', homeworkRoutes)
 app.use('/api', studentRoutes)
 app.use('/api', teacherRoutes)
 app.use('/api', submission)
+app.use('/api', timeBoard)
 
 const swaggerUi = require('swagger-ui-express')
 const swaggerDocument = require('./swagger-output.json')
@@ -35,9 +37,8 @@ const swaggerDocument = require('./swagger-output.json')
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.get('/', (req, res) => {
-  res.send('Welcome to the E-Center Backend API');
-});
-
+	res.send('Welcome to the E-Center Backend API')
+})
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {

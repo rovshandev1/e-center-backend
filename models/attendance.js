@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
+  timeBoard: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TimeBoard',
+    required: true,
+  },
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
