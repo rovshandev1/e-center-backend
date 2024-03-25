@@ -74,25 +74,30 @@ const updateGroup = async (req, res) => {
 }
 
 const deleteGroup = async (req, res) => {
-	try {
-		const groupId = req.params.id
-		const group = await Group.findByIdAndDelete(groupId)
-		if (!group) {
-			return res.status(404).json({ message: 'Group not found' })
-		}
-		await Teacher.updateMany(
-			{ groups: groupId },
-			{ $pull: { groups: groupId } }
-		)
-		await Student.updateMany(
-			{ groups: groupId },
-			{ $pull: { groups: groupId } }
-		)
-		res.status(200).json({ message: 'Group deleted successfully' })
-	} catch (err) {
-		res.status(500).json({ message: 'Something went wrong' })
-	}
-}
+  try {
+    const groupId = req.params.id;
+    const group = await Group.findByIdAndDelete(groupId);
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    // Ushbu guruhga tegishli bo'lgan barcha o'quvchilarni yangilash
+    await User.updateMany(
+      { role: 'student', groups: groupId },
+      { $pull: { groups: groupId } }
+    );
+
+    // Ushbu guruhga tegishli bo'lgan barcha o'qituvchilarni yangilash
+    await User.updateMany(
+      { role: 'teacher', groups: groupId },
+      { $pull: { groups: groupId } }
+    );
+
+    res.status(200).json({ message: 'Group deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Something went wrong', err });
+  }
+};
 
 const addStudentToGroup = async (req, res) => {
 	try {
