@@ -7,7 +7,7 @@ const {
 	getGroupById,
 	updateGroup,
 	deleteGroup,
-	addStudentToGroup,
+	addStudentsToGroup,
 	removeStudentFromGroup,
 } = require('../controllers/groupController')
 
@@ -27,7 +27,7 @@ router.put('/groups/:id', auth, updateGroup)
 router.delete('/groups/:id', auth, deleteGroup)
 
 // Add a student to a group
-router.post('/groups/:groupId/students/:studentId', auth, addStudentToGroup)
+router.post('/groups/:groupId/students', auth, addStudentsToGroup);
 
 // Remove a student from a group
 router.delete(

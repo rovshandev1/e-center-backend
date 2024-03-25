@@ -74,64 +74,75 @@ const updateGroup = async (req, res) => {
 }
 
 const deleteGroup = async (req, res) => {
-  try {
-    const groupId = req.params.id;
-    const group = await Group.findByIdAndDelete(groupId);
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
-    }
-
-    // Ushbu guruhga tegishli bo'lgan barcha o'quvchilarni yangilash
-    await User.updateMany(
-      { role: 'student', groups: groupId },
-      { $pull: { groups: groupId } }
-    );
-
-    // Ushbu guruhga tegishli bo'lgan barcha o'qituvchilarni yangilash
-    await User.updateMany(
-      { role: 'teacher', groups: groupId },
-      { $pull: { groups: groupId } }
-    );
-
-    res.status(200).json({ message: 'Group deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', err });
-  }
-};
-
-const addStudentToGroup = async (req, res) => {
 	try {
-		const groupId = req.params.groupId
-		const studentId = req.params.studentId
-		const group = await Group.findById(groupId)
-		const student = await User.findById(studentId)
-
-		if (!group || !student || student.role !== 'student') {
-			return res.status(404).json({ message: 'Group or student not found' })
+		const groupId = req.params.id
+		const group = await Group.findByIdAndDelete(groupId)
+		if (!group) {
+			return res.status(404).json({ message: 'Group not found' })
 		}
 
-		// Check if the student is already in the group
-		if (group.students.includes(studentId)) {
-			return res
-				.status(400)
-				.json({ message: 'Student already exists in the group' })
-		}
+		// Ushbu guruhga tegishli bo'lgan barcha o'quvchilarni yangilash
+		await User.updateMany(
+			{ role: 'student', groups: groupId },
+			{ $pull: { groups: groupId } }
+		)
 
-		// Initialize the groups array if not already initialized
-		if (!student.groups) {
-			student.groups = []
-		}
+		// Ushbu guruhga tegishli bo'lgan barcha o'qituvchilarni yangilash
+		await User.updateMany(
+			{ role: 'teacher', groups: groupId },
+			{ $pull: { groups: groupId } }
+		)
 
-		group.students.push(studentId)
-		student.groups.push(groupId)
-		await group.save()
-		await student.save()
-
-		res.status(200).json({ message: 'Student added to group successfully' })
+		res.status(200).json({ message: 'Group deleted successfully' })
 	} catch (err) {
 		res.status(500).json({ message: 'Something went wrong', err })
 	}
 }
+
+const addStudentsToGroup = async (req, res) => {
+	try {
+		const groupId = req.params.groupId
+		const { studentIds } = req.body
+
+		// Guruhni topish
+		const group = await Group.findById(groupId)
+
+		if (!group) {
+			return res.status(404).json({ message: 'Group not found' })
+		}
+
+		// Talabalarni topish va tekshirish
+		const students = await User.find({
+			_id: { $in: studentIds },
+			role: 'student',
+		})
+
+		if (students.length !== studentIds.length) {
+			return res.status(404).json({ message: 'One or more students not found' })
+		}
+
+		// Talabalarni guruhga qo'shish
+		for (const student of students) {
+			if (!student.groups) {
+				student.groups = []
+			}
+
+			if (!student.groups.includes(groupId)) {
+				student.groups.push(groupId)
+				group.students.push(student._id)
+			}
+		}
+
+		// Guruh va talabalarni saqlash
+		await group.save()
+		await Promise.all(students.map(student => student.save()))
+
+		res.status(200).json({ message: 'Students added to group successfully' })
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong', err })
+	}
+}
+
 
 const removeStudentFromGroup = async (req, res) => {
 	try {
@@ -159,6 +170,6 @@ module.exports = {
 	getGroupById,
 	updateGroup,
 	deleteGroup,
-	addStudentToGroup,
+	addStudentsToGroup,
 	removeStudentFromGroup,
 }
