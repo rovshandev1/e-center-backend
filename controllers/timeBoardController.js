@@ -103,25 +103,42 @@ const deleteTimeBoard = async (req, res) => {
 
 // Dars jadvalini olish
 const getTimeBoard = async (req, res) => {
-  try {
-    const timeBoardId = req.params.id;
-    const timeBoard = await TimeBoard.findById(timeBoardId).populate('group', 'name');
-    if (!timeBoard) {
-      return res.status(404).json({ message: 'Time board not found' });
-    }
+	try {
+		const timeBoardId = req.params.id
+		const timeBoard = await TimeBoard.findById(timeBoardId).populate(
+			'group',
+			'name'
+		)
+		if (!timeBoard) {
+			return res.status(404).json({ message: 'Time board not found' })
+		}
 
-    const { group } = timeBoard;
-    const groupName = group.name;
+		const { group } = timeBoard
+		const groupName = group.name
 
-    res.status(200).json({ ...timeBoard._doc, groupName });
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', error: err.message });
-  }
-};
+		res.status(200).json({ ...timeBoard._doc, groupName })
+	} catch (err) {
+		res
+			.status(500)
+			.json({ message: 'Something went wrong', error: err.message })
+	}
+}
+
+const getAllTimeBoards = async (req, res) => {
+	try {
+		const allTimeBoards = await TimeBoard.find().populate('group', 'name')
+		res.status(200).json(allTimeBoards)
+	} catch (err) {
+		res
+			.status(500)
+			.json({ message: 'Something went wrong', error: err.message })
+	}
+}
 
 module.exports = {
 	createTimeBoard,
 	updateTimeBoard,
 	deleteTimeBoard,
 	getTimeBoard,
+	getAllTimeBoards,
 }

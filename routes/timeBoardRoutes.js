@@ -4,6 +4,7 @@ const {
 	updateTimeBoard,
 	deleteTimeBoard,
 	getTimeBoard,
+	getAllTimeBoards,
 } = require('../controllers/timeBoardController')
 const auth = require('../middlewares/auth')
 const router = express.Router()
@@ -19,5 +20,8 @@ router.get('/timeboard/:id', auth, getTimeBoard)
 
 // Dars jadvalini o'chirish
 router.delete('/timeboard/:id', auth, deleteTimeBoard)
+
+// Get all timeboards route
+router.get('/timeboards', auth, getAllTimeBoards)
 
 module.exports = router
