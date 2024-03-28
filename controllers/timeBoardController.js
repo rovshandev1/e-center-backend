@@ -1,132 +1,127 @@
 const TimeBoard = require('../models/timeBoard')
 const User = require('../models/user')
-const Attendance = require('../models/attendance')
+const Group = require('../models/group')
 
 // Dars jadvalini yaratish
 const createTimeBoard = async (req, res) => {
-  try {
-    const { lessonName, lessonDateTime, groupId } = req.body;
-    const teacher = req.user._id;
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
-    }
+	try {
+		const { lessonName, lessonDateTime, teacher } = req.body
+		const groupId = req.body.group
+		const group = await Group.findById(groupId)
+		if (!group) {
+			return res.status(404).json({ message: 'Group not found' })
+		}
 
-    const timeBoard = new TimeBoard({
-      lessonName,
-      lessonDateTime,
-      group: groupId,
-      teacher,
-    });
+		const timeBoard = new TimeBoard({
+			lessonName,
+			lessonDateTime,
+			group: groupId,
+			teacher,
+		})
+		await timeBoard.save()
 
-    // Barcha guruh a'zolariga dars jadvali qo'shish
-    const students = group.students;
-    for (const studentId of students) {
-      const student = await User.findById(studentId);
-      student.timeBoards.push(timeBoard._id);
-      await student.save();
-    }
+		// Barcha guruh a'zolariga dars jadvali qo'shish
+		const students = await User.find({ _id: { $in: group.students } })
+		students.forEach(async student => {
+			student.timeBoards.push(timeBoard._id)
+			await student.save()
+		})
 
-    await timeBoard.save();
-    res.status(201).json(timeBoard);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', error: err.message });
-  }
-};
+		res.status(201).json(timeBoard)
+	} catch (err) {
+		res
+			.status(500)
+			.json({ message: 'Something went wrong', error: err.message })
+	}
+}
 
 // Dars jadvalini yangilash
 const updateTimeBoard = async (req, res) => {
-  try {
-    const timeBoardId = req.params.id;
-    const { lessonName, lessonDateTime, groupId } = req.body;
-    const teacher = req.user._id;
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
-    }
+	try {
+		const timeBoardId = req.params.id
+		const { lessonName, lessonDateTime, teacher } = req.body
+		const groupId = req.body.group
+		const group = await Group.findById(groupId)
+		if (!group) {
+			return res.status(404).json({ message: 'Group not found' })
+		}
 
-    const updatedTimeBoard = await TimeBoard.findByIdAndUpdate(
-      timeBoardId,
-      { lessonName, lessonDateTime, group: groupId, teacher },
-      { new: true }
-    );
+		const updatedTimeBoard = await TimeBoard.findByIdAndUpdate(
+			timeBoardId,
+			{ lessonName, lessonDateTime, group: groupId, teacher },
+			{ new: true, runValidators: true }
+		)
+		if (!updatedTimeBoard) {
+			return res.status(404).json({ message: 'Time board not found' })
+		}
 
-    if (!updatedTimeBoard) {
-      return res.status(404).json({ message: 'Time board not found' });
-    }
+		// Update students' time boards as well
+		const students = await User.find({ _id: { $in: group.students } })
+		students.forEach(async student => {
+			const index = student.timeBoards.indexOf(timeBoardId)
+			if (index !== -1) {
+				student.timeBoards.splice(index, 1)
+			}
+			student.timeBoards.push(updatedTimeBoard._id)
+			await student.save()
+		})
 
-    // Update students' time boards as well
-    const students = group.students;
-    for (const studentId of students) {
-      const student = await User.findById(studentId);
-      if (student.timeBoards.includes(timeBoardId)) {
-        const index = student.timeBoards.indexOf(timeBoardId);
-        student.timeBoards.splice(index, 1);
-      }
-      student.timeBoards.push(updatedTimeBoard._id);
-      await student.save();
-    }
-
-    res.status(200).json(updatedTimeBoard);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', error: err.message });
-  }
-};
+		res.status(200).json(updatedTimeBoard)
+	} catch (err) {
+		res
+			.status(500)
+			.json({ message: 'Something went wrong', error: err.message })
+	}
+}
 
 // Dars jadvalini o'chirish
 const deleteTimeBoard = async (req, res) => {
+	try {
+		const timeBoardId = req.params.id
+		const deletedTimeBoard = await TimeBoard.findByIdAndDelete(timeBoardId)
+		if (!deletedTimeBoard) {
+			return res.status(404).json({ message: 'Time board not found' })
+		}
+
+		// Remove time board from students
+		const students = await User.find({ timeBoards: timeBoardId })
+		students.forEach(async student => {
+			const index = student.timeBoards.indexOf(timeBoardId)
+			if (index !== -1) {
+				student.timeBoards.splice(index, 1)
+				await student.save()
+			}
+		})
+
+		res.status(200).json({ message: 'Time board deleted successfully' })
+	} catch (err) {
+		res
+			.status(500)
+			.json({ message: 'Something went wrong', error: err.message })
+	}
+}
+
+// Dars jadvalini olish
+const getTimeBoard = async (req, res) => {
   try {
     const timeBoardId = req.params.id;
-    const deletedTimeBoard = await TimeBoard.findByIdAndDelete(timeBoardId);
-    if (!deletedTimeBoard) {
+    const timeBoard = await TimeBoard.findById(timeBoardId).populate('group', 'name');
+    if (!timeBoard) {
       return res.status(404).json({ message: 'Time board not found' });
     }
 
-    // Remove time board from students
-    const students = await User.find({ timeBoards: timeBoardId });
-    for (const student of students) {
-      const index = student.timeBoards.indexOf(timeBoardId);
-      student.timeBoards.splice(index, 1);
-      await student.save();
-    }
+    const { group } = timeBoard;
+    const groupName = group.name;
 
-    res.status(200).json({ message: 'Time board deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', error: err.message });
-  }
-};
-
-// O'qituvchi uchun navbatdagi darslar jadvali
-const getTeacherTimeBoards = async (req, res) => {
-  try {
-    const teacher = req.user._id;
-    const timeBoards = await TimeBoard.find({ teacher })
-      .populate('group', 'name')
-      .sort({ lessonDateTime: 1 });
-    res.status(200).json(timeBoards);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', error: err.message });
-  }
-};
-
-// Talaba uchun navbatdagi darslar jadvali
-const getStudentTimeBoards = async (req, res) => {
-  try {
-    const student = req.user._id;
-    const timeBoards = await TimeBoard.find({ students: student })
-      .populate('group', 'name')
-      .populate('teacher', 'name')
-      .sort({ lessonDateTime: 1 });
-    res.status(200).json(timeBoards);
+    res.status(200).json({ ...timeBoard._doc, groupName });
   } catch (err) {
     res.status(500).json({ message: 'Something went wrong', error: err.message });
   }
 };
 
 module.exports = {
-  createTimeBoard,
-  updateTimeBoard,
-  deleteTimeBoard,
-  getTeacherTimeBoards,
-  getStudentTimeBoards,
-};
+	createTimeBoard,
+	updateTimeBoard,
+	deleteTimeBoard,
+	getTimeBoard,
+}
