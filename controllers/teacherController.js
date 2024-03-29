@@ -49,7 +49,7 @@ const markAttendance = async (req, res) => {
 		)
 		res.status(201).json(attendance)
 	} catch (err) {
-		res.status(500).json({ message: 'Something went wrong' })
+		res.status(500).json({ message: 'Something went wrong' , err})
 	}
 }
 
@@ -92,7 +92,7 @@ const updateAttendance = async (req, res) => {
 
 		res.status(200).json(updatedAttendance)
 	} catch (err) {
-		res.status(500).json({ message: 'Something went wrong' })
+		res.status(500).json({ message: 'Something went wrong', err })
 	}
 }
 

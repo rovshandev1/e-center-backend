@@ -1265,13 +1265,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "group": {
+                  "example": "any"
+                },
                 "lessonName": {
                   "example": "any"
                 },
                 "lessonDateTime": {
                   "example": "any"
                 },
-                "groupId": {
+                "teacher": {
                   "example": "any"
                 }
               }
@@ -1294,54 +1297,8 @@
         }
       }
     },
-    "/api/timeboard/teacher": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/timeboard/student": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/api/timeboard/{id}": {
-      "patch": {
+      "put": {
         "description": "",
         "parameters": [
           {
@@ -1361,17 +1318,50 @@
             "schema": {
               "type": "object",
               "properties": {
+                "group": {
+                  "example": "any"
+                },
                 "lessonName": {
                   "example": "any"
                 },
                 "lessonDateTime": {
                   "example": "any"
                 },
-                "groupId": {
+                "teacher": {
                   "example": "any"
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1413,6 +1403,29 @@
           },
           "404": {
             "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/timeboards": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "500": {
             "description": "Internal Server Error"
