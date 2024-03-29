@@ -4,7 +4,6 @@ const attendanceSchema = new mongoose.Schema({
   timeBoard: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'TimeBoard',
-    required: true,
   },
   student: {
     type: mongoose.Schema.Types.ObjectId,
@@ -18,7 +17,6 @@ const attendanceSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    required: true,
   },
   isPresent: {
     type: Boolean,
