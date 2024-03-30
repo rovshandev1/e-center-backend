@@ -39,7 +39,7 @@ const getHomeworkSubmissions = async (req, res) => {
 
 		res.status(200).json(submissions)
 	} catch (err) {
-		res.status(500).json({ message: 'Something went wrong' })
+		res.status(500).json({ message: 'Something went wrong', err })
 	}
 }
 
