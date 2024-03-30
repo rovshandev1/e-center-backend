@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const Attendance = require('../models/attendance')
 const Homework = require('../models/homework')
+const Material = require('../models/material')
 
 const getStudentProfile = async (req, res) => {
 	try {
@@ -49,20 +50,40 @@ const getStudentHomework = async (req, res) => {
 }
 
 const getAllStudents = async (req, res) => {
-  try {
-    const students = await User.find({ role: 'student' })
-      .select('-password')
-      .populate('groups', 'name description');
+	try {
+		const students = await User.find({ role: 'student' })
+			.select('-password')
+			.populate('groups', 'name description')
 
-    res.status(200).json(students);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
+		res.status(200).json(students)
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong' })
+	}
+}
+
+const getStudentMaterials = async (req, res) => {
+	try {
+		const studentId = req.params.id
+		const student = await User.findById(studentId).populate('groups')
+
+		if (!student || student.role !== 'student') {
+			return res.status(404).json({ message: 'Student not found' })
+		}
+
+		const materials = await Material.find({
+			group: { $in: student.groups },
+		}).populate('group', 'name')
+
+		res.status(200).json(materials)
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong' })
+	}
+}
 
 module.exports = {
 	getStudentProfile,
 	getStudentAttendance,
 	getStudentHomework,
-	getAllStudents
+	getAllStudents,
+	getStudentMaterials,
 }
