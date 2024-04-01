@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../middlewares/auth')
 const {
-	getStudentProfile,
+	getStudent,
 	getStudentAttendance,
 	getStudentHomework,
 	getAllStudents,
@@ -10,7 +10,7 @@ const {
 } = require('../controllers/studentController')
 
 // Get student profile
-router.get('/students/:id/profile', auth, getStudentProfile)
+router.get('/students/:id', auth, getStudent)
 
 // Get student attendance
 router.get('/students/:id/attendance', auth, getStudentAttendance)

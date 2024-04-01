@@ -39,6 +39,12 @@ const userSchema = new mongoose.Schema({
       ref: 'TimeBoard'
     }
   ],
+	grades: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Grade',
+    },
+  ],
 	profileImage: {
 		type: Object,
 	},

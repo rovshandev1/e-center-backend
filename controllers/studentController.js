@@ -2,19 +2,37 @@ const User = require('../models/user')
 const Attendance = require('../models/attendance')
 const Homework = require('../models/homework')
 const Material = require('../models/material')
+const Grade = require('../models/grade')
 
-const getStudentProfile = async (req, res) => {
+const getStudent = async (req, res) => {
 	try {
 		const userId = req.params.id
-		// Talabaning ma'lumotlarini bazadan izlash
 		const student = await User.findOne({
 			_id: userId,
 			role: 'student',
 		}).populate('groups', 'name dob profileImage')
+
 		if (!student) {
 			return res.status(404).json({ message: 'Student not found' })
 		}
-		res.status(200).json(student)
+
+		// Populate attendance and grades for the student
+		const attendance = await Attendance.find({ student: userId })
+			.populate('group', 'name')
+			.populate('timeBoard', 'lessonName lessonDateTime')
+		const grades = await Grade.find({ student: userId }).populate(
+			'group',
+			'name'
+		)
+
+		// Combine student data with attendance and grades
+		const studentWithDetails = {
+			...student.toJSON(),
+			attendance,
+			grades,
+		}
+
+		res.status(200).json(studentWithDetails)
 	} catch (err) {
 		res.status(500).json({ message: 'Something went wrong', err })
 	}
@@ -23,10 +41,9 @@ const getStudentProfile = async (req, res) => {
 const getStudentAttendance = async (req, res) => {
 	try {
 		const studentId = req.params.id
-		const attendance = await Attendance.find({ student: studentId }).populate(
-			'group',
-			'name'
-		)
+		const attendance = await Attendance.find({ student: studentId })
+			.populate('group', 'name')
+			.populate('timeBoard', 'lessonName lessonDateTime')
 		res.status(200).json(attendance)
 	} catch (err) {
 		res.status(500).json({ message: 'Something went wrong' })
@@ -55,9 +72,26 @@ const getAllStudents = async (req, res) => {
 			.select('-password')
 			.populate('groups', 'name description')
 
-		res.status(200).json(students)
+		const studentsWithAttendanceAndGrades = await Promise.all(
+			students.map(async student => {
+				const attendance = await Attendance.find({ student: student._id })
+					.populate('group', 'name')
+					.populate('timeBoard', 'lessonName lessonDateTime')
+				const grades = await Grade.find({ student: student._id }).populate(
+					'group',
+					'name'
+				)
+				return {
+					...student.toJSON(),
+					attendance,
+					grades,
+				}
+			})
+		)
+
+		res.status(200).json(studentsWithAttendanceAndGrades)
 	} catch (err) {
-		res.status(500).json({ message: 'Something went wrong' })
+		res.status(500).json({ message: 'Something went wrong', err })
 	}
 }
 
@@ -81,7 +115,7 @@ const getStudentMaterials = async (req, res) => {
 }
 
 module.exports = {
-	getStudentProfile,
+	getStudent,
 	getStudentAttendance,
 	getStudentHomework,
 	getAllStudents,
