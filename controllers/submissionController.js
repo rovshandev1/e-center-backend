@@ -43,6 +43,18 @@ const getHomeworkSubmissions = async (req, res) => {
 	}
 }
 
+const getAllSubmissions = async (req, res) => {
+	try {
+			const submissions = await Submission.find()
+					.populate('student', 'name')
+					.populate('homework', 'title');
+			
+			res.status(200).json(submissions);
+	} catch (err) {
+			res.status(500).json({ message: 'Something went wrong', err });
+	}
+};
+
 const updateSubmission = async (req, res) => {
 	try {
 		const submissionId = req.params.id
@@ -89,4 +101,4 @@ const uploadSubmissionFile = async (req, res) => {
   }
 };
 
-module.exports = { submitHomework, getHomeworkSubmissions, updateSubmission, uploadSubmissionFile }
+module.exports = { submitHomework, getHomeworkSubmissions, updateSubmission, uploadSubmissionFile, getAllSubmissions }

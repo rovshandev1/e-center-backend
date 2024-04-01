@@ -9,11 +9,14 @@ const {
 	getHomeworkSubmissions,
 	updateSubmission,
 	uploadSubmissionFile,
+	getAllSubmissions,
 } = require('../controllers/submissionController')
 
 router.post('/submissions', auth, upload.single('file'), submitHomework)
 
 router.get('/submissions/:homeworkId', auth, getHomeworkSubmissions)
+
+router.get('/submissions', auth, getAllSubmissions)
 
 router.put('/submissions/:id', auth, updateSubmission)
 
