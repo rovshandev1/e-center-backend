@@ -1,5 +1,6 @@
 const Grade = require('../models/grade')
 const Group = require('../models/group')
+const Submission = require('../models/submission')
 const User = require('../models/user')
 
 // Create a new grade
@@ -52,6 +53,42 @@ const createGrade = async (req, res) => {
 		res.status(500).json({ message: 'Something went wrong', err })
 	}
 }
+
+const gradeHomework = async (req, res) => {
+  try {
+    const { submissionId, grade } = req.body;
+    const submission = await Submission.findById(submissionId).populate('homework');
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    // Agar oldindan grade mavjud bo'lsa, uni yangilaymiz
+    let gradeEntry = await Grade.findOne({
+      student: submission.student,
+      group: submission.homework.group,
+      title: submission.homework.title,
+    });
+
+    if (gradeEntry) {
+      gradeEntry.grade = grade;
+      await gradeEntry.save();
+    } else {
+      // Aks holda, yangi grade yaratamiz
+      gradeEntry = new Grade({
+        student: submission.student,
+        group: submission.homework.group,
+        title: submission.homework.title,
+        grade,
+      });
+      await gradeEntry.save();
+    }
+
+    res.status(200).json(gradeEntry);
+  } catch (err) {
+    res.status(500).json({ message: 'Something went wrong', err });
+  }
+};
 
 // Get grades for a student
 const getStudentGrades = async (req, res) => {
@@ -119,4 +156,4 @@ const deleteGrade = async (req, res) => {
 	}
 }
 
-module.exports = { createGrade, getStudentGrades, updateGrade, deleteGrade }
+module.exports = { createGrade, getStudentGrades, updateGrade, deleteGrade, gradeHomework }
