@@ -10,7 +10,6 @@ const homeworkSchema = new mongoose.Schema({
 	},
 	dueDate: {
 		type: Date,
-		required: true,
 	},
 	group: {
 		type: mongoose.Schema.Types.ObjectId,
