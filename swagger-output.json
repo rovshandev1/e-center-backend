@@ -138,7 +138,10 @@
                 "name": {
                   "example": "any"
                 },
-                "dateOfBirth": {
+                "email": {
+                  "example": "any"
+                },
+                "dob": {
                   "example": "any"
                 },
                 "position": {
