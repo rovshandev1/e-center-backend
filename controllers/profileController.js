@@ -1,6 +1,4 @@
 const User = require('../models/user');
-const Student = require('../models/student');
-const Teacher = require('../models/teacher');
 
 const getProfile = async (req, res) => {
   try {
@@ -15,11 +13,11 @@ const getProfile = async (req, res) => {
 
     let profile;
     if (user.role === 'student') {
-      profile = await Student.findOne({ user: userId })
+      profile = await User.findOne({ user: userId })
         .populate('groups')
         .populate('profileImage');
     } else {
-      profile = await Teacher.findOne({ user: userId })
+      profile = await User.findOne({ user: userId })
         .populate('groups')
         .populate('profileImage');
     }
@@ -47,13 +45,13 @@ const updateProfile = async (req, res) => {
 
     let profile;
     if (user.role === 'student') {
-      profile = await Student.findOneAndUpdate(
+      profile = await User.findOneAndUpdate(
         { user: userId },
         { dob },
         { new: true, runValidators: true }
       );
     } else {
-      profile = await Teacher.findOneAndUpdate(
+      profile = await User.findOneAndUpdate(
         { user: userId },
         { dob, position },
         { new: true, runValidators: true }
@@ -87,13 +85,13 @@ const updateProfileImage = async (req, res) => {
 
     let profile;
     if (user.role === 'student') {
-      profile = await Student.findOneAndUpdate(
+      profile = await User.findOneAndUpdate(
         { user: userId },
         { profileImage: req.file },
         { new: true, runValidators: true }
       );
     } else {
-      profile = await Teacher.findOneAndUpdate(
+      profile = await User.findOneAndUpdate(
         { user: userId },
         { profileImage: req.file },
         { new: true, runValidators: true }
