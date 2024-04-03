@@ -3,11 +3,11 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary')
 const cloudinary = require('../config/cloudinary')
 
 const storage = new CloudinaryStorage({
-	cloudinary: cloudinary,
-	params: {
-		folder: 'uploads',
-		format: async (req, file) => 'png',
-	},
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads',
+    format: async (req, file) => file.mimetype.split('/')[1], // Faylning asl formatini saqlab qolish
+  },
 })
 
 const fileFilter = (req, file, cb) => {
