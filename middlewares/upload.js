@@ -4,35 +4,11 @@ const cloudinary = require('../config/cloudinary')
 
 const storage = new CloudinaryStorage({
 	cloudinary: cloudinary,
-	params: (req, file) => {
-		const fileExtension = file.originalname.split('.').pop();
-		let format;
-		switch(file.mimetype) {
-			case 'image/jpeg':
-			case 'image/png':
-				format = 'png'; // or 'jpg' depending on the desired format
-				break;
-			case 'application/pdf':
-				format = 'pdf';
-				break;
-			case 'application/msword':
-			case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-				format = 'docx'; // or 'doc' depending on the desired format
-				break;
-			case 'application/vnd.ms-excel':
-			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-				format = 'xlsx'; // or 'xls' depending on the desired format
-				break;
-			default:
-				format = fileExtension; // Use the file extension as format for unknown types
-		}
-		return {
-			folder: 'uploads',
-			format: format
-		};
+	params: {
+		folder: 'uploads',
+		format: async (req, file) => 'png',
 	},
 })
-
 
 const fileFilter = (req, file, cb) => {
 	const allowedTypes = [
