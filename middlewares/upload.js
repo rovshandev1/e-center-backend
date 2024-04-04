@@ -6,7 +6,11 @@ const storage = new CloudinaryStorage({
 	cloudinary: cloudinary,
 	params: {
 		folder: 'uploads',
-		format: async (req, file) => 'png',
+		format: async (req, file) => {
+      // Faylning kengaytmasini aniqlash
+      const fileExtension = file.originalname.split('.').pop().toLowerCase();
+      return fileExtension;
+		},
 	},
 })
 
@@ -18,7 +22,7 @@ const fileFilter = (req, file, cb) => {
     'jpeg',
     'png',
     'gif',
-    'pdf',
+    'pdf', // pdf qo'shildi
     'doc',
     'docx',
     'xls',
@@ -28,7 +32,8 @@ const fileFilter = (req, file, cb) => {
     'txt',
     'zip',
     'rar',
-  ];
+];
+
 
   if (allowedExtensions.includes(fileExtension)) {
     cb(null, true); // Fayl qabul qilinadi
