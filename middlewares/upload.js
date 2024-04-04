@@ -11,20 +11,30 @@ const storage = new CloudinaryStorage({
 })
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    'image/jpeg',
-    'image/png',
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'text/plain', // Matn fayllarini qo'shdik
+  // Faylning kengaytmasini tekshirish
+  const fileExtension = file.originalname.split('.').pop().toLowerCase();
+  const allowedExtensions = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'ppt',
+    'pptx',
+    'txt',
+    'zip',
+    'rar',
   ];
-  if (!allowedTypes.includes(file.mimetype)) {
-    return cb(new Error('File type not allowed'), false);
+
+  if (allowedExtensions.includes(fileExtension)) {
+    cb(null, true); // Fayl qabul qilinadi
+  } else {
+    cb(new Error('File type not allowed'), false); // Fayl rad etiladi
   }
-  cb(null, true);
 };
 
 const upload = multer({
