@@ -93,10 +93,17 @@ const uploadMaterialFile = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-    const fileUrl = req.file.path;
-    material.file = fileUrl;
-    material.fileType = req.file.mimetype;
+
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: 'auto',
+      folder: 'materials',
+      public_id: `materials/${materialId}`,
+    });
+
+    material.file = result.secure_url;
+    material.fileType = result.format;
     await material.save();
+
     res.status(200).json(material);
   } catch (err) {
     res.status(500).json({ message: 'Something went wrong' });
