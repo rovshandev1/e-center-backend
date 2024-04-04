@@ -63,28 +63,17 @@ const gradeHomework = async (req, res) => {
       return res.status(404).json({ message: 'Submission not found' });
     }
 
-    // Agar oldindan grade mavjud bo'lsa, uni yangilaymiz
-    let gradeEntry = await Grade.findOne({
+    // Yangi grade yaratamiz
+    const newGrade = new Grade({
       student: submission.student,
       group: submission.homework.group,
-      title: submission.homework.title,
+      homework: submission.homework._id,
+      grade,
     });
 
-    if (gradeEntry) {
-      gradeEntry.grade = grade;
-      await gradeEntry.save();
-    } else {
-      // Aks holda, yangi grade yaratamiz
-      gradeEntry = new Grade({
-        student: submission.student,
-        group: submission.homework.group,
-        title: submission.homework.title,
-        grade,
-      });
-      await gradeEntry.save();
-    }
+    await newGrade.save();
 
-    res.status(200).json(gradeEntry);
+    res.status(201).json(newGrade);
   } catch (err) {
     res.status(500).json({ message: 'Something went wrong', err });
   }
