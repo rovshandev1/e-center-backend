@@ -84,27 +84,24 @@ const deleteMaterial = async (req, res) => {
 }
 
 const uploadMaterialFile = async (req, res) => {
-	try {
-		const materialId = req.params.id
-		const material = await Material.findById(materialId)
-		if (!material) {
-			return res.status(404).json({ message: 'Material not found' })
-		}
-		if (!req.file) {
-			return res.status(400).json({ message: 'No file uploaded' })
-		}
-		const result = await cloudinary.uploader.upload(req.file.path, {
-			resource_type: 'auto',
-			public_id: `materials/${materialId}`,
-		})
-		material.file = result.secure_url
-		material.fileType = result.resource_type
-		await material.save()
-		res.status(200).json(material)
-	} catch (err) {
-		res.status(500).json({ message: 'Something went wrong' })
-	}
-}
+  try {
+    const materialId = req.params.id;
+    const material = await Material.findById(materialId);
+    if (!material) {
+      return res.status(404).json({ message: 'Material not found' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const fileUrl = req.file.path;
+    material.file = fileUrl;
+    material.fileType = req.file.mimetype;
+    await material.save();
+    res.status(200).json(material);
+  } catch (err) {
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+};
 
 module.exports = {
 	createMaterial,
