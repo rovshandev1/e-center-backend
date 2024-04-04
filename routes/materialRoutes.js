@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const auth = require('../middlewares/auth')
-const upload = require('../middlewares/upload')
+const fileUpload = require('../middlewares/fileUpload')
 const {
 	createMaterial,
 	getAllMaterials,
@@ -30,7 +30,7 @@ router.delete('/materials/:id', auth, deleteMaterial)
 router.post(
 	'/materials/:id/upload',
 	auth,
-	upload.single('file'),
+	fileUpload.single('file'),
 	uploadMaterialFile
 )
 

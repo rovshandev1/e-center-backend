@@ -6,41 +6,25 @@ const storage = new CloudinaryStorage({
 	cloudinary: cloudinary,
 	params: {
 		folder: 'uploads',
-		format: async (req, file) => {
-      // Faylning kengaytmasini aniqlash
-      const fileExtension = file.originalname.split('.').pop().toLowerCase();
-      return fileExtension;
-		},
+		format: async (req, file) => 'png',
 	},
 })
 
 const fileFilter = (req, file, cb) => {
-  // Faylning kengaytmasini tekshirish
-  const fileExtension = file.originalname.split('.').pop().toLowerCase();
-  const allowedExtensions = [
-    'jpg',
-    'jpeg',
-    'png',
-    'gif',
-    'pdf', // pdf qo'shildi
-    'doc',
-    'docx',
-    'xls',
-    'xlsx',
-    'ppt',
-    'pptx',
-    'txt',
-    'zip',
-    'rar',
-];
-
-
-  if (allowedExtensions.includes(fileExtension)) {
-    cb(null, true); // Fayl qabul qilinadi
-  } else {
-    cb(new Error('File type not allowed'), false); // Fayl rad etiladi
-  }
-};
+	const allowedTypes = [
+		'image/jpeg',
+		'image/png',
+		'application/pdf',
+		'application/msword',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		'application/vnd.ms-excel',
+		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	]
+	if (!allowedTypes.includes(file.mimetype)) {
+		return cb(new Error('File type not allowed'), false)
+	}
+	cb(null, true)
+}
 
 const upload = multer({
 	storage: storage,
