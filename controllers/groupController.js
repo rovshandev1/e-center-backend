@@ -32,8 +32,8 @@ const createGroup = async (req, res) => {
 const getAllGroups = async (req, res) => {
 	try {
 		const groups = await Group.find()
-			.populate('teacher', 'name profileImage dob email position')
-			.populate('students', 'name profileImage dob email')
+			.populate('teacher', 'name profileImage dob phone position')
+			.populate('students', 'name profileImage dob phone')
 		res.status(200).json(groups)
 	} catch (err) {
 		res.status(500).json({ message: 'Something went wrong' })
@@ -44,8 +44,8 @@ const getGroupById = async (req, res) => {
 	try {
 		const groupId = req.params.id
 		const group = await Group.findById(groupId)
-			.populate('teacher', 'name profileImage dob email position')
-			.populate('students', 'name profileImage dob email')
+			.populate('teacher', 'name profileImage dob phone position')
+			.populate('students', 'name profileImage dob phone')
 		if (!group) {
 			return res.status(404).json({ message: 'Group not found' })
 		}

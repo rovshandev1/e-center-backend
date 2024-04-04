@@ -37,7 +37,7 @@
                 "name": {
                   "example": "any"
                 },
-                "email": {
+                "phone": {
                   "example": "any"
                 },
                 "password": {
@@ -73,7 +73,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "email": {
+                "phone": {
                   "example": "any"
                 },
                 "password": {
@@ -1666,8 +1666,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           },
           "401": {
             "description": "Unauthorized"

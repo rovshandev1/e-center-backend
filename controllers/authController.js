@@ -6,12 +6,12 @@ dotenv.config()
 
 const register = async (req, res) => {
 	try {
-		const { name, email, password, role } = req.body
-		const existingUser = await User.findOne({ email })
+		const { name, phone, password, role } = req.body
+		const existingUser = await User.findOne({ phone })
 		if (existingUser) {
-			return res.status(400).json({ message: 'Email already exists' })
+			return res.status(400).json({ message: 'Phone number already exists' })
 		}
-		const user = new User({ name, email, password, role })
+		const user = new User({ name, phone, password, role })
 		await user.save()
 		res.status(201).json({ message: 'User registered successfully' })
 	} catch (err) {
@@ -21,8 +21,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
 	try {
-		const { email, password } = req.body
-		const user = await User.findOne({ email })
+		const { phone, password } = req.body
+		const user = await User.findOne({ phone })
 		if (!user) {
 			return res.status(400).json({ message: 'Invalid credentials' })
 		}
