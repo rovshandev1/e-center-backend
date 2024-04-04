@@ -1,6 +1,5 @@
 const Material = require('../models/material')
 const Group = require('../models/group')
-const cloudinary = require('../config/cloudinary')
 
 const createMaterial = async (req, res) => {
 	try {
@@ -93,12 +92,9 @@ const uploadMaterialFile = async (req, res) => {
 		if (!req.file) {
 			return res.status(400).json({ message: 'No file uploaded' })
 		}
-		const result = await cloudinary.uploader.upload(req.file.path, {
-			resource_type: 'auto',
-			public_id: `materials/${materialId}`,
-		})
-		material.file = result.secure_url
-		material.fileType = result.resource_type
+
+		material.file = req.file.path
+		material.fileType = req.file.mimetype
 		await material.save()
 		res.status(200).json(material)
 	} catch (err) {
