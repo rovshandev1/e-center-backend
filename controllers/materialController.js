@@ -1,8 +1,6 @@
 const Material = require('../models/material')
 const Group = require('../models/group')
-const path = require('path');
-const fs = require('fs');
-const uploadDir = path.join(__dirname, '..', 'uploads')
+const cloudinary = require('../config/cloudinary')
 
 const createMaterial = async (req, res) => {
 	try {
@@ -86,37 +84,27 @@ const deleteMaterial = async (req, res) => {
 }
 
 const uploadMaterialFile = async (req, res) => {
-  try {
-    const materialId = req.params.id;
-    const material = await Material.findById(materialId);
-
-    if (!material) {
-      return res.status(404).json({ message: 'Material not found' });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-
-    const fileExtension = path.extname(req.file.originalname);
-    const fileName = `${materialId}${fileExtension}`;
-    const filePath = path.join(uploadDir, fileName);
-
-    // Faylni serverga yuklash
-    fs.copyFileSync(req.file.path, filePath);
-
-    // Material ma'lumotlarini yangilash
-    material.file = fileName;
-   material.fileType = req.file.mimetype;
-    await material.save();
-
-    res.status(200).json(material);
-		console.log(material);
-  } catch (err) {
-		console.log(err);
-    res.status(500).json({ message: 'Something went wrong', err });
-  }
-};
+	try {
+		const materialId = req.params.id
+		const material = await Material.findById(materialId)
+		if (!material) {
+			return res.status(404).json({ message: 'Material not found' })
+		}
+		if (!req.file) {
+			return res.status(400).json({ message: 'No file uploaded' })
+		}
+		const result = await cloudinary.uploader.upload(req.file.path, {
+			resource_type: 'auto',
+			public_id: `materials/${materialId}`,
+		})
+		material.file = result.secure_url
+		material.fileType = result.resource_type
+		await material.save()
+		res.status(200).json(material)
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong' })
+	}
+}
 
 module.exports = {
 	createMaterial,
