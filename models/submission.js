@@ -11,6 +11,12 @@ const submissionSchema = new mongoose.Schema({
 		ref: 'User',
 		required: true,
 	},
+	grades: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Grade',
+		},
+	],
 	file: {
 		type: String,
 	},

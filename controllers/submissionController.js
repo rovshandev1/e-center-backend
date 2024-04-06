@@ -36,6 +36,7 @@ const getHomeworkSubmissions = async (req, res) => {
 		const submissions = await Submission.find({ homework: homeworkId })
 			.populate('student', 'name')
 			.populate('homework', 'title')
+			.populate('grades', 'grade')
 
 		res.status(200).json(submissions)
 	} catch (err) {
@@ -45,15 +46,16 @@ const getHomeworkSubmissions = async (req, res) => {
 
 const getAllSubmissions = async (req, res) => {
 	try {
-			const submissions = await Submission.find()
-					.populate('student', 'name')
-					.populate('homework', 'title');
-			
-			res.status(200).json(submissions);
+		const submissions = await Submission.find()
+			.populate('student', 'name')
+			.populate('homework', 'title')
+			.populate("grades", "grade")
+
+		res.status(200).json(submissions)
 	} catch (err) {
-			res.status(500).json({ message: 'Something went wrong', err });
+		res.status(500).json({ message: 'Something went wrong', err })
 	}
-};
+}
 
 const updateSubmission = async (req, res) => {
 	try {
@@ -77,28 +79,34 @@ const updateSubmission = async (req, res) => {
 }
 
 const uploadSubmissionFile = async (req, res) => {
-  try {
-    const submissionId = req.params.id;
-    const submission = await Submission.findById(submissionId);
+	try {
+		const submissionId = req.params.id
+		const submission = await Submission.findById(submissionId)
 
-    if (!submission) {
-      return res.status(404).json({ message: 'Submission not found' });
-    }
+		if (!submission) {
+			return res.status(404).json({ message: 'Submission not found' })
+		}
 
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
+		if (!req.file) {
+			return res.status(400).json({ message: 'No file uploaded' })
+		}
 
-    const fileUrl = req.file.path;
+		const fileUrl = req.file.path
 
-    submission.file = fileUrl;
+		submission.file = fileUrl
 
-    await submission.save();
+		await submission.save()
 
-    res.status(200).json({ message: 'File uploaded successfully', submission });
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', err });
-  }
-};
+		res.status(200).json({ message: 'File uploaded successfully', submission })
+	} catch (err) {
+		res.status(500).json({ message: 'Something went wrong', err })
+	}
+}
 
-module.exports = { submitHomework, getHomeworkSubmissions, updateSubmission, uploadSubmissionFile, getAllSubmissions }
+module.exports = {
+	submitHomework,
+	getHomeworkSubmissions,
+	updateSubmission,
+	uploadSubmissionFile,
+	getAllSubmissions,
+}

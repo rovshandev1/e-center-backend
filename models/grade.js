@@ -11,11 +11,8 @@ const gradeSchema = new mongoose.Schema({
 		ref: 'Group',
 		required: true,
 	},
-	subject: {
-		type: String,
-	},
 	grade: {
-		type: Number,
+		type: String,
 		required: true,
 	},
 	createdAt: {

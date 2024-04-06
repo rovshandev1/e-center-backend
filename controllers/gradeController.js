@@ -6,7 +6,7 @@ const User = require('../models/user')
 // Create a new grade
 const createGrade = async (req, res) => {
 	try {
-		const { studentId, groupId, subject, grade, submissionId } = req.body
+		const { studentId, groupId, grade, submissionId } = req.body
 
 		// Check if student, group, and submission exist
 		const [student, group, submission] = await Promise.all([
@@ -48,7 +48,6 @@ const createGrade = async (req, res) => {
 			student: studentId,
 			group: groupId,
 			homework: submission.homework._id,
-			subject,
 			grade,
 		})
 
@@ -60,26 +59,18 @@ const createGrade = async (req, res) => {
 	}
 }
 
-// Get grades for a student
-const getStudentGrades = async (req, res) => {
+// Get grades for a single
+const getGradeById = async (req, res) => {
 	try {
-		const studentId = req.params.id
-		console.log(req.params)
+		const gradeId = req.params.id
 
-		// Find the student and populate their grades
-		const student = await User.findById(studentId).populate({
-			path: 'grades',
-			populate: {
-				path: 'group',
-				select: 'name',
-			},
-		})
+		const grade = await Grade.findById(gradeId)
 
-		if (!student) {
-			return res.status(404).json({ message: 'Student not found' })
+		if (!grade) {
+			return res.status(404).json({ message: 'Grade not found' })
 		}
 
-		res.status(200).json(student.grades)
+		res.status(200).json(grade)
 	} catch (err) {
 		res.status(500).json({ message: 'Something went wrong', err })
 	}
@@ -91,7 +82,6 @@ const updateGrade = async (req, res) => {
 		const { grade } = req.body
 		const gradeId = req.params.id
 
-		// Find the grade by ID and update it
 		const updatedGrade = await Grade.findByIdAndUpdate(
 			gradeId,
 			{ grade },
@@ -126,4 +116,4 @@ const deleteGrade = async (req, res) => {
 	}
 }
 
-module.exports = { createGrade, getStudentGrades, updateGrade, deleteGrade }
+module.exports = { createGrade, getGradeById, updateGrade, deleteGrade }
