@@ -6,14 +6,19 @@ const User = require('../models/user')
 // Create a new grade
 const createGrade = async (req, res) => {
 	try {
-		const { studentId, groupId, subject, grade } = req.body
+		const { studentId, groupId, subject, grade, submissionId } = req.body
 
-		// Check if student and group exist
-		const student = await User.findById(studentId)
-		const group = await Group.findById(groupId)
+		// Check if student, group, and submission exist
+		const [student, group, submission] = await Promise.all([
+			User.findById(studentId),
+			Group.findById(groupId),
+			Submission.findById(submissionId).populate('homework'),
+		])
 
-		if (!student || !group) {
-			return res.status(404).json({ message: 'Student or group not found' })
+		if (!student || !group || !submission) {
+			return res
+				.status(404)
+				.json({ message: 'Student, group, or submission not found' })
 		}
 
 		// Check if the student is part of the group
@@ -42,6 +47,7 @@ const createGrade = async (req, res) => {
 		const newGrade = new Grade({
 			student: studentId,
 			group: groupId,
+			homework: submission.homework._id,
 			subject,
 			grade,
 		})
@@ -53,31 +59,6 @@ const createGrade = async (req, res) => {
 		res.status(500).json({ message: 'Something went wrong', err })
 	}
 }
-
-const gradeHomework = async (req, res) => {
-  try {
-    const { submissionId, grade } = req.body;
-    const submission = await Submission.findById(submissionId).populate('homework');
-
-    if (!submission) {
-      return res.status(404).json({ message: 'Submission not found' });
-    }
-
-    // Yangi grade yaratamiz
-    const newGrade = new Grade({
-      student: submission.student,
-      group: submission.homework.group,
-      homework: submission.homework._id,
-      grade,
-    });
-
-    await newGrade.save();
-
-    res.status(201).json(newGrade);
-  } catch (err) {
-    res.status(500).json({ message: 'Something went wrong', err });
-  }
-};
 
 // Get grades for a student
 const getStudentGrades = async (req, res) => {
@@ -145,4 +126,4 @@ const deleteGrade = async (req, res) => {
 	}
 }
 
-module.exports = { createGrade, getStudentGrades, updateGrade, deleteGrade, gradeHomework }
+module.exports = { createGrade, getStudentGrades, updateGrade, deleteGrade }
