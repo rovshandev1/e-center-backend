@@ -1321,10 +1321,16 @@
                 "group": {
                   "example": "any"
                 },
-                "lessonDateTime": {
+                "teacher": {
                   "example": "any"
                 },
-                "teacher": {
+                "weeks": {
+                  "example": "any"
+                },
+                "startTime": {
+                  "example": "any"
+                },
+                "endTime": {
                   "example": "any"
                 }
               }
@@ -1369,9 +1375,6 @@
               "type": "object",
               "properties": {
                 "group": {
-                  "example": "any"
-                },
-                "lessonDateTime": {
                   "example": "any"
                 },
                 "teacher": {
