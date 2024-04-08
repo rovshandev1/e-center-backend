@@ -19,7 +19,7 @@ const getStudent = async (req, res) => {
 		// Populate attendance and grades for the student
 		const attendance = await Attendance.find({ student: userId })
 			.populate('group', 'name')
-			.populate('timeBoard', 'lessonName lessonDateTime')
+			.populate('timeBoard', 'lessonDateTime')
 		const grades = await Grade.find({ student: userId }).populate(
 			'group',
 			'name'
