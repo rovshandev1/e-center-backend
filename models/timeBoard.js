@@ -10,10 +10,6 @@ const timeBoardSchema = new mongoose.Schema({
 		ref: 'User',
 		required: true,
 	},
-	lessonName: {
-		type: String,
-		required: true,
-	},
 	lessonDateTime: {
 		type: String,
 		required: true,
