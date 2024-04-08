@@ -76,6 +76,16 @@ const getGradeById = async (req, res) => {
 	}
 }
 
+// Get grades for a all
+const getAllGrades = async (req, res) => {
+  try {
+    const allGrades = await Grade.find();
+    res.status(200).json(allGrades);
+  } catch (err) {
+    res.status(500).json({ message: 'Something went wrong', err });
+  }
+}
+
 // Update a grade
 const updateGrade = async (req, res) => {
 	try {
@@ -116,4 +126,4 @@ const deleteGrade = async (req, res) => {
 	}
 }
 
-module.exports = { createGrade, getGradeById, updateGrade, deleteGrade }
+module.exports = { createGrade, getGradeById, updateGrade, deleteGrade, getAllGrades }
