@@ -5,7 +5,7 @@ const Group = require('../models/group')
 // Dars jadvalini yaratish
 const createTimeBoard = async (req, res) => {
 	try {
-		const { lessonName, lessonDateTime, teacher } = req.body
+		const { lessonDateTime, teacher } = req.body
 		const groupId = req.body.group
 		const group = await Group.findById(groupId)
 		if (!group) {
@@ -13,7 +13,6 @@ const createTimeBoard = async (req, res) => {
 		}
 
 		const timeBoard = new TimeBoard({
-			lessonName,
 			lessonDateTime,
 			group: groupId,
 			teacher,
@@ -39,7 +38,7 @@ const createTimeBoard = async (req, res) => {
 const updateTimeBoard = async (req, res) => {
 	try {
 		const timeBoardId = req.params.id
-		const { lessonName, lessonDateTime, teacher } = req.body
+		const { lessonDateTime, teacher } = req.body
 		const groupId = req.body.group
 		const group = await Group.findById(groupId)
 		if (!group) {
@@ -48,7 +47,7 @@ const updateTimeBoard = async (req, res) => {
 
 		const updatedTimeBoard = await TimeBoard.findByIdAndUpdate(
 			timeBoardId,
-			{ lessonName, lessonDateTime, group: groupId, teacher },
+			{ lessonDateTime, group: groupId, teacher },
 			{ new: true, runValidators: true }
 		)
 		if (!updatedTimeBoard) {
