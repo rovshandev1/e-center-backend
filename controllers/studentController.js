@@ -76,7 +76,7 @@ const getAllStudents = async (req, res) => {
 			students.map(async student => {
 				const attendance = await Attendance.find({ student: student._id })
 					.populate('group', 'name')
-					.populate('timeBoard', 'lessonName lessonDateTime')
+					.populate('timeBoards', 'weeks')
 				const grades = await Grade.find({ student: student._id }).populate(
 					'group',
 					'name'
