@@ -22,11 +22,12 @@ const createTimeBoard = async (req, res) => {
 		await timeBoard.save();
 
 		// Barcha guruh a'zolariga dars jadvali qo'shish
-		const students = await User.find({ _id: { $in: group.students } });
-		students.forEach(async (student) => {
-			student.timeBoards.push(timeBoard._id);
-			await student.save();
-		});
+// Barcha guruh a'zolariga dars jadvali qo'shish
+const students = await User.find({ _id: { $in: group.students } });
+for (const student of students) {
+	student.timeBoards.push(timeBoard._id);
+	await student.save();
+}
 
 		res.status(201).json(timeBoard);
 	} catch (err) {

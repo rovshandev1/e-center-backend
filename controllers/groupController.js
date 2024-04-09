@@ -33,7 +33,7 @@ const getAllGroups = async (req, res) => {
 	try {
 		const groups = await Group.find()
 			.populate('teacher', 'name profileImage dob phone position')
-			.populate('students', 'name profileImage dob phone')
+			.populate('students', 'name profileImage dob phone timeBoards')
 		res.status(200).json(groups)
 	} catch (err) {
 		res.status(500).json({ message: 'Something went wrong' })
